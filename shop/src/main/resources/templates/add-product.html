@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  dir="ltr"
+  xmlns:th="http://www.w3.org/1999/xhtml"
+  xmlns="http://www.w3.org/1999/html"
+  xmlns:sec="http://www.w3.org/1999/xhtml"
+>
+  <head>
+    <meta charset="utf-8" />
+    <title>Luna</title>
+    <link rel="stylesheet" href="assets/fontawesome-all.min.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500&family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+
+  <body>
+    <header>
+      <div class="top-bar">
+        <div class="logo"><a href="/home">Luna</a></div>
+        <div class="user-area">
+          <div sec:authorize="!isAuthenticated()">
+            <a href="/signup"><i class="fa fa-user-plus"></i> Sign Up</a>
+            <a href="/login"><i class="fa fa-sign-in-alt"></i> Login</a>
+          </div>
+          <div sec:authorize="isAuthenticated()">
+            <a href="/logout"><i class="fa fa-sign-in-alt"></i> Logout</a>
+          </div>
+          <a href="/payments/charge" class="cart-link">
+            <i class="fa fa-shopping-cart"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="menu">
+        <a href="/home" class="active">Home</a>
+        <a href="/products">Products</a>
+        <a href="/categories">Categories</a>
+        <a href="/admin" sec:authorize="hasRole('ROLE_ADMIN')">Admin</a>
+      </div>
+    </header>
+
+    <div class="container mini-container">
+      <p class="exception" th:if="${param.error}" th:text="${param.error}"></p>
+      <p
+        class="message"
+        th:if="${param.message}"
+        th:text="${param.message}"
+      ></p>
+      <div class="sign-up">
+        <h1 class="page-title">ADD PRODUCT</h1>
+        <form
+          class="form"
+          autocomplete="off"
+          action="/admin"
+          method="post"
+          enctype="multipart/form-data"
+          th:object="${product}"
+        >
+          <input
+            autocomplete="off"
+            name="hidden"
+            type="text"
+            style="display: none"
+          />
+          <div class="form-row">
+            <input
+              type="text"
+              hidden="hidden"
+              name="id"
+              th:value="${product.getId()}"
+            />
+            <label for="name">Product Name</label>
+            <div class="form-input">
+              <input
+                type="text"
+                class="form-control"
+                th:value="${product.getName()}"
+                id="name"
+                name="name"
+                th:field="*{name}"
+                required
+                placeholder="Enter the product name."
+                maxlength="100"
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="price">Product Price</label>
+            <div class="form-input">
+              <input
+                type="text"
+                class="form-control"
+                th:value="${product.getPrice()}"
+                id="price"
+                th:field="*{price}"
+                name="price"
+                placeholder="Enter the product price."
+                maxlength="100"
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="quantity">Product Quantity</label>
+            <div class="form-input">
+              <input
+                type="text"
+                class="form-control"
+                th:value="${product.getQuantity()}"
+                id="quantity"
+                th:field="*{quantity}"
+                name="quantity"
+                placeholder="Enter the product quantity."
+                maxlength="100"
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Brand</label>
+            <div class="form-input">
+              <select th:field="*{brand.id}" class="form-control">
+                <option
+                  th:selected="${product.getBrand() != null && product.getBrand().getId() == brand.getId()}"
+                  th:each="brand : ${brands}"
+                  th:value="${brand.getId()}"
+                  th:text="${brand.getName()}"
+                ></option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Category</label>
+            <div class="form-input">
+              <select th:field="*{category.id}" class="form-control">
+                <option
+                  th:selected="${product.getCategory() != null && product.getCategory().getId() == category.getId()}"
+                  th:each="category : ${categories}"
+                  th:value="${category.getId()}"
+                  th:text="${category.getName()}"
+                ></option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Type</label>
+            <div class="form-input">
+              <select th:field="*{type.id}" class="form-control">
+                <option
+                  th:selected="${product.getType() != null && product.getType().getId() == type.getId()}"
+                  th:each="type : ${types}"
+                  th:value="${type.getId()}"
+                  th:text="${type.getName()}"
+                ></option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Active Ingredients</label>
+            <div class="form-input">
+              <select
+                th:field="*{ingredients}"
+                name="ingredients"
+                class="form-control"
+                multiple="multiple"
+              >
+                <option
+                  th:selected="${product.getIngredients() != null && product.getIngredients().contains(ingredient)}"
+                  th:each="ingredient : ${ingredients}"
+                  th:value="${ingredient.getId()}"
+                  th:text="${ingredient.getName()}"
+                ></option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Product Image</label>
+            <div class="form-input">
+              <input type="file" name="image" value="" />
+            </div>
+          </div>
+          <div class="form-row">
+            <label>&nbsp;</label>
+            <div class="form-input">
+              <button type="submit">REGISTER</button>
+            </div>
+          </div>
+        </form>
+        <div class="form-row">
+          <label>&nbsp;</label>
+          <a class="form-input" href="/admin">
+            <button type="submit">BACK</button>
+          </a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  dir="ltr"
+  xmlns:th="http://www.w3.org/1999/xhtml"
+  xmlns:sec="http://www.w3.org/1999/xhtml"
+>
+  <head>
+    <meta charset="utf-8" />
+    <title>Luna</title>
+    <link rel="stylesheet" href="assets/fontawesome-all.min.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500&family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script type="text/javascript" src="assets/js/jquery-3.3.1.min.js"></script>
+  </head>
+
+  <body>
+    <header>
+      <div class="top-bar">
+        <div class="logo"><a href="/home">Luna</a></div>
+        <div class="user-area">
+          <div sec:authorize="!isAuthenticated()">
+            <a href="/signup"><i class="fa fa-user-plus"></i> Sign Up</a>
+            <a href="/login"><i class="fa fa-sign-in-alt"></i> Login</a>
+          </div>
+          <div sec:authorize="isAuthenticated()">
+            <a href="/logout"><i class="fa fa-sign-in-alt"></i> Logout</a>
+          </div>
+          <a href="/payments/charge" class="cart-link">
+            <i class="fa fa-shopping-cart"></i>
+            <span class="cart-count" th:text="${productsquantity}"></span>
+          </a>
+        </div>
+      </div>
+
+      <div class="menu">
+        <a href="/home">Home</a>
+        <a href="/products">Products</a>
+        <a href="/categories">Categories</a>
+        <a href="/admin" sec:authorize="hasRole('ROLE_ADMIN')">Admin</a>
+      </div>
+    </header>
+
+    <div class="container middle-container">
+      <p class="exception" th:if="${param.error}" th:text="${param.error}"></p>
+      <p
+        class="message"
+        th:if="${param.message}"
+        th:text="${param.message}"
+      ></p>
+      <div class="sign-up">
+        <h1 class="page-title">SHOPPING CART</h1>
+        <div class="cart-container">
+          <form action="/payments/charge" method="post">
+            <table
+              class="cart-table"
+              th:if="${shoppingCart.getCartItems().size() > 0}"
+            >
+              <thead>
+                <tr>
+                  <th colspan="2">Product</th>
+                  <th>Price</th>
+                  <th width="60">Qty</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="cartItem : ${shoppingCart.getCartItems()}">
+                  <td class="cart-image">
+                    <img th:src="${cartItem.getProduct().getImageBase64()}" />
+                  </td>
+                  <td
+                    class="cart-name"
+                    th:text="${cartItem.getProduct().getName()}"
+                  ></td>
+                  <td
+                    class="cart-price"
+                    th:text="${cartItem.getProduct().getPrice()}"
+                  ></td>
+                  <td class="cart-qty" th:text="${cartItem.getQuantity()}"></td>
+                  <td
+                    class="cart-total"
+                    th:text="${cartItem.getProduct().getPrice()}"
+                  ></td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="2">&nbsp;</td>
+                  <td>Total</td>
+                  <td class="total-qty" th:text="${productsquantity}"></td>
+                  <td
+                    class="total-price"
+                    th:text="${amount/100} + ' ' + ${currency}"
+                  ></td>
+                </tr>
+              </tfoot>
+            </table>
+            <div class="cart-buttons">
+              <a href="/products" class="cart-continue"
+                ><i class="fa fa-angle-double-left"></i> Continue Shopping</a
+              >
+              <input type="hidden" th:value="${amount}" name="amount" />
+              <input type="hidden" th:value="${currency}" name="currency" />
+              <div>
+                <script
+                  src="https://checkout.stripe.com/checkout.js"
+                  class="stripe-button"
+                  th:attr="data-key=${stripePublicKey},
+                        data-amount=${amount},
+                        data-currency=${currency}"
+                  data-name="LUNA"
+                  data-description="LUNA checkout"
+                  data-locale="auto"
+                  data-zip-code="false"
+                ></script>
+                <script>
+                  document.getElementsByClassName(
+                    "stripe-button-el"
+                  )[0].style.display = "none";
+                </script>
+                <a class="cart-checkout">
+                  <button type="submit">
+                    Checkout <i class="fa fa-angle-double-right"></i>
+                  </button>
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
